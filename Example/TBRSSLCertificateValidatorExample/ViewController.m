@@ -29,12 +29,15 @@ static NSString *const kGithubRootSHA1Fingerprint = @"5F B7 EE 06 33 E2 59 DB AD
     [super viewDidLoad];
     
     self.SSLCertitificateValidator = [[TBRSSLCertificateValidator alloc] initWithArrayOfValidCertificates:@[[self testRootCertificate]]];
+}
 
-    
+
+- (IBAction)connect:(UIButton *)sender
+{
     NSURLSession *urlSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]
                                                              delegate:self
                                                         delegateQueue:nil];
-
+    
     NSURLRequest *urlRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:kTestURL]];
     NSURLSessionDataTask *dataTask = [urlSession dataTaskWithRequest:urlRequest
                                                    completionHandler:^(NSData *data,
