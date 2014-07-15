@@ -19,13 +19,21 @@
 - (instancetype)initWithArrayOfValidCertificates:(NSArray *)validCertificatesArray;
 
 /**
- *  Method for checking that at least one of the authentication challenge certificates match the
- *  valid ones provided
+ *  Validation method to be used with NSURLConnections
  *
- *  @param challenge The Authentication challenge from the connection delegate
- *
- *  @return YES if at least one of the challenge certificates matches the valid ones, NO if none match
+ *  @param challenge The NSURLAuthenticationChallenge from the NSURLSessionDelegate callback
  */
-- (BOOL)isAtLeastOneValidCertiticateForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
+- (void)validateChallenge:(NSURLAuthenticationChallenge *)challenge;
+
+/**
+ *  Validation method to be used with NSURLSession connections
+ *
+ *  @param challenge         The NSURLAuthenticationChallenge from the NSURLSessionDelegate callback
+ *  @param completionHandler The completionHandler from the NSURLSessionDelegate callback
+ */
+- (void)validateChallenge:(NSURLAuthenticationChallenge *)challenge
+        completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition,
+                                    NSURLCredential *credential))completionHandler;
+
 
 @end

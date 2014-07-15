@@ -31,9 +31,7 @@ static NSString *const kGithubRootSHA1Fingerprint = @"5F B7 EE 06 33 E2 59 DB AD
     self.SSLCertitificateValidator = [[TBRSSLCertificateValidator alloc] initWithArrayOfValidCertificates:@[[self testRootCertificate]]];
 }
 
-#pragma mark - NSURLConnection
-
-
+#pragma mark - NSURLConnection example
 
 - (IBAction)connectUsingNSURLConnection:(UIButton *)sender
 {
@@ -45,27 +43,7 @@ static NSString *const kGithubRootSHA1Fingerprint = @"5F B7 EE 06 33 E2 59 DB AD
 - (void)connection:(NSURLConnection *)connection
 willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
-    BOOL isAtLeastOneCertificateValid = [self.SSLCertitificateValidator isAtLeastOneValidCertiticateForAuthenticationChallenge:challenge];
-    
-    SecTrustRef remoteSSLTransactionState = [[challenge protectionSpace] serverTrust];
-    
-    
-    if (isAtLeastOneCertificateValid) {
-        SecTrustResultType trustEvaluateResult;
-        OSStatus trustEvaluateOSStatus = SecTrustEvaluate(remoteSSLTransactionState, &trustEvaluateResult);
-        
-        BOOL trusted = (trustEvaluateOSStatus == noErr) &&
-                        ((trustEvaluateResult == kSecTrustResultProceed) || (trustEvaluateResult == kSecTrustResultUnspecified));
-        
-        if(trusted) {
-            [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
-        } else {
-            [challenge.sender cancelAuthenticationChallenge:challenge];
-        }
-        
-    } else {
-        [challenge.sender cancelAuthenticationChallenge:challenge];
-    }
+    [self.SSLCertitificateValidator validateChallenge:challenge];
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
@@ -74,7 +52,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     NSLog(@"NSURLConnection httpResponse:%@",[httpResponse allHeaderFields]);
 }
 
-#pragma mark - NSURLSession
+#pragma mark - NSURLSession example
 
 - (IBAction)connectUsingNSURLSession:(UIButton *)sender
 {
@@ -100,19 +78,9 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
   completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition,
                               NSURLCredential *credential))completionHandler
-{    
-    BOOL isAtLeastOneCertificateValid = [self.SSLCertitificateValidator isAtLeastOneValidCertiticateForAuthenticationChallenge:challenge];
-    
-    if (isAtLeastOneCertificateValid) {
-        
-        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
-        
-    } else {
-        
-        completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
-    }
-   
-    
+{
+    [self.SSLCertitificateValidator validateChallenge:challenge
+                                    completionHandler:completionHandler];
 }
 
 #pragma mark - Helper methods

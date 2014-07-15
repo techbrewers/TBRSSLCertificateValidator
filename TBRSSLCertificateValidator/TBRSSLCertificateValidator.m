@@ -16,7 +16,7 @@
 
 @implementation TBRSSLCertificateValidator
 
-#pragma mark - Object lifecycled
+#pragma mark - Object lifecycle
 
 - (instancetype)initWithArrayOfValidCertificates:(NSArray *)validCertificatesArray
 {
@@ -35,6 +35,51 @@
 }
 
 #pragma mark - Public methods
+
+
+- (void)validateChallenge:(NSURLAuthenticationChallenge *)challenge
+{
+    BOOL isAtLeastOneCertificateValid = [self isAtLeastOneValidCertiticateForAuthenticationChallenge:challenge];
+    
+    SecTrustRef remoteSSLTransactionState = [[challenge protectionSpace] serverTrust];
+    
+    
+    if (isAtLeastOneCertificateValid) {
+        SecTrustResultType trustEvaluateResult;
+        OSStatus trustEvaluateOSStatus = SecTrustEvaluate(remoteSSLTransactionState, &trustEvaluateResult);
+        
+        BOOL trusted = (trustEvaluateOSStatus == noErr) &&
+        ((trustEvaluateResult == kSecTrustResultProceed) || (trustEvaluateResult == kSecTrustResultUnspecified));
+        
+        if(trusted) {
+            [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
+        } else {
+            [challenge.sender cancelAuthenticationChallenge:challenge];
+        }
+        
+    } else {
+        [challenge.sender cancelAuthenticationChallenge:challenge];
+    }
+}
+
+- (void)validateChallenge:(NSURLAuthenticationChallenge *)challenge
+        completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition,
+                                    NSURLCredential *credential))completionHandler
+{
+    BOOL isAtLeastOneCertificateValid = [self isAtLeastOneValidCertiticateForAuthenticationChallenge:challenge];
+    
+    if (isAtLeastOneCertificateValid) {
+        
+        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+        
+    } else {
+        
+        completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
+    }
+}
+
+
+
 
 - (BOOL)isAtLeastOneValidCertiticateForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
