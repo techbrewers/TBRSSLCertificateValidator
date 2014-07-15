@@ -17,19 +17,31 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2KY-mI-mM3">
-                                <rect key="frame" x="131" y="269" width="59" height="30"/>
+                                <rect key="frame" x="56" y="319" width="209" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="Connect">
+                                <state key="normal" title="Connect using NSURLSession">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
-                                    <action selector="connect:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="EZE-d9-l5B"/>
+                                    <action selector="connectUsingNSURLSession:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="RKd-bJ-je3"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="62i-RQ-MM0">
+                                <rect key="frame" x="44" y="219" width="233" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Connect using NSURLConnection">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="connectUsingNSURLConnection:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="XLA-e6-UVf"/>
                                 </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstAttribute="centerY" secondItem="2KY-mI-mM3" secondAttribute="centerY" id="OEN-cr-hlb"/>
+                            <constraint firstAttribute="centerX" secondItem="62i-RQ-MM0" secondAttribute="centerX" id="Gqb-bx-Ff8"/>
+                            <constraint firstAttribute="centerY" secondItem="62i-RQ-MM0" secondAttribute="centerY" constant="50" id="Idw-6r-sg9"/>
+                            <constraint firstAttribute="centerY" secondItem="2KY-mI-mM3" secondAttribute="centerY" constant="-50" id="OEN-cr-hlb"/>
                             <constraint firstAttribute="centerX" secondItem="2KY-mI-mM3" secondAttribute="centerX" constant="-0.5" id="y17-DQ-pso"/>
                         </constraints>
                     </view>

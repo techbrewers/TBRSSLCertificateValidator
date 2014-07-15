@@ -16,7 +16,7 @@ static NSString *const kTestURL = @"https://github.com/";
 static NSString *const kGithubRootMD5Fingerprint = @"D4 74 DE 57 5C 39 B2 D3 9C 85 83 C5 C0 65 49 8A";
 static NSString *const kGithubRootSHA1Fingerprint = @"5F B7 EE 06 33 E2 59 DB AD 0C 4C 9A E6 D3 8F 1A 61 C7 DC 25";
 
-@interface ViewController ()  <NSURLSessionDelegate>
+@interface ViewController ()  <NSURLSessionDelegate, NSURLConnectionDelegate, NSURLConnectionDataDelegate>
 
 @property (nonatomic, strong) TBRSSLCertificateValidator *SSLCertitificateValidator;
 
@@ -31,8 +31,52 @@ static NSString *const kGithubRootSHA1Fingerprint = @"5F B7 EE 06 33 E2 59 DB AD
     self.SSLCertitificateValidator = [[TBRSSLCertificateValidator alloc] initWithArrayOfValidCertificates:@[[self testRootCertificate]]];
 }
 
+#pragma mark - NSURLConnection
 
-- (IBAction)connect:(UIButton *)sender
+
+
+- (IBAction)connectUsingNSURLConnection:(UIButton *)sender
+{
+    (void)[[NSURLConnection alloc] initWithRequest:[self urlRequest]
+                                          delegate:self
+                                  startImmediately:YES];
+}
+
+- (void)connection:(NSURLConnection *)connection
+willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
+{
+    BOOL isAtLeastOneCertificateValid = [self.SSLCertitificateValidator isAtLeastOneValidCertiticateForAuthenticationChallenge:challenge];
+    
+    SecTrustRef remoteSSLTransactionState = [[challenge protectionSpace] serverTrust];
+    
+    
+    if (isAtLeastOneCertificateValid) {
+        SecTrustResultType trustEvaluateResult;
+        OSStatus trustEvaluateOSStatus = SecTrustEvaluate(remoteSSLTransactionState, &trustEvaluateResult);
+        
+        BOOL trusted = (trustEvaluateOSStatus == noErr) &&
+                        ((trustEvaluateResult == kSecTrustResultProceed) || (trustEvaluateResult == kSecTrustResultUnspecified));
+        
+        if(trusted) {
+            [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
+        } else {
+            [challenge.sender cancelAuthenticationChallenge:challenge];
+        }
+        
+    } else {
+        [challenge.sender cancelAuthenticationChallenge:challenge];
+    }
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
+{
+    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+    NSLog(@"NSURLConnection httpResponse:%@",[httpResponse allHeaderFields]);
+}
+
+#pragma mark - NSURLSession
+
+- (IBAction)connectUsingNSURLSession:(UIButton *)sender
 {
     NSURLSession *urlSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]
                                                              delegate:self
@@ -69,6 +113,13 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
     }
    
     
+}
+
+#pragma mark - Helper methods
+
+- (NSURLRequest *)urlRequest
+{
+    return [NSURLRequest requestWithURL:[NSURL URLWithString:kTestURL]];
 }
 
 - (TBRSSLCertificateModel *)testRootCertificate
